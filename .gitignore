@@ -1,0 +1,87 @@
+# ================================
+# Node.js / Backend & Frontend
+# ================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# ================================
+# Environment Variables (SECRETS)
+# ================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ================================
+# Python / ML-Service
+# ================================
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# ================================
+# ML Model Files (large binaries)
+# ================================
+*.pkl
+*.h5
+*.hdf5
+*.model
+*.weights
+*.onnx
+data.pkl
+model.pkl
+plant_disease_model.h5
+
+# ================================
+# Uploads / User Data
+# ================================
+backend/uploads/
+
+# ================================
+# OS & IDE Files
+# ================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+
+# JetBrains IDEs
+.idea/
+
+# ================================
+# Logs & Temp Files
+# ================================
+logs/
+*.log
+*.tmp
+*.swp
+*.swo
+.cache/
+
+# ================================
+# Testing
+# ================================
+coverage/
+.nyc_output/
