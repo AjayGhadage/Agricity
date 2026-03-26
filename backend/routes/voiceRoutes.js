@@ -8,13 +8,25 @@ const textToSpeech = require("@google-cloud/text-to-speech");
 
 const upload = multer({ dest: "uploads/" });
 
-const speechClient = new speech.SpeechClient();
-const ttsClient = new textToSpeech.TextToSpeechClient();
+// Detect if GOOGLE_APPLICATION_CREDENTIALS is a path or an API Key
+const isApiKey = process.env.GOOGLE_APPLICATION_CREDENTIALS && process.env.GOOGLE_APPLICATION_CREDENTIALS.startsWith("AIza");
+const clientOptions = isApiKey 
+  ? { apiKey: process.env.GOOGLE_APPLICATION_CREDENTIALS } 
+  : {};
+
+if (!isApiKey && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  // If it's a path, ensure it's set in env for the library to find naturally
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+}
+
+const speechClient = new speech.SpeechClient(clientOptions);
+const ttsClient = new textToSpeech.TextToSpeechClient(clientOptions);
 
 // 🎤 POST /api/voice
 router.post("/", upload.single("audio"), async (req, res) => {
   try {
     const filePath = req.file.path;
+    const langCode = req.body.languageCode || "en-IN";
 
     // ============================
     // 🧠 1. SPEECH → TEXT
@@ -25,12 +37,23 @@ router.post("/", upload.single("audio"), async (req, res) => {
     const request = {
       audio: { content: audioBytes },
       config: {
-        encoding: "LINEAR16",
-        languageCode: "en-IN", // later dynamic
+        encoding: "WEBM_OPUS", // Browser MediaRecorder usually outputs webm directly
+        sampleRateHertz: 48000,
+        languageCode: langCode,
       },
     };
 
     const [response] = await speechClient.recognize(request);
+    
+    // If Google STT can't understand the audio blob, handle gracefully.
+    if (!response.results || response.results.length === 0) {
+        return res.json({
+            transcript: "[Unrecognized Audio]",
+            reply: "I'm sorry, I couldn't understand that audio. Please try again.",
+            audio: null
+        });
+    }
+
     const transcript =
       response.results.map(r => r.alternatives[0].transcript).join(" ");
 
@@ -50,13 +73,21 @@ router.post("/", upload.single("audio"), async (req, res) => {
 
     const ttsRequest = {
       input: { text: replyText },
-      voice: { languageCode: "en-IN", ssmlGender: "NEUTRAL" },
+      voice: { languageCode: langCode, ssmlGender: "NEUTRAL" },
       audioConfig: { audioEncoding: "MP3" },
     };
 
     const [ttsResponse] = await ttsClient.synthesizeSpeech(ttsRequest);
+    
+    // Create random filename so parallel users don't overwrite each other's audio
+    const randomFname = `audio_out_${Date.now()}.mp3`;
+    const outputFile = `./public/audio/${randomFname}`;
+    
+    // Ensure directory exists
+    if (!fs.existsSync('./public/audio')) {
+      fs.mkdirSync('./public/audio', { recursive: true });
+    }
 
-    const outputFile = "output.mp3";
     fs.writeFileSync(outputFile, ttsResponse.audioContent, "binary");
 
     // ============================
@@ -66,7 +97,7 @@ router.post("/", upload.single("audio"), async (req, res) => {
     res.json({
       transcript,
       reply: replyText,
-      audio: "/output.mp3"
+      audio: `/audio/${randomFname}`
     });
 
   } catch (err) {

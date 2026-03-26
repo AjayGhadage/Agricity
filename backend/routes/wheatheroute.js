@@ -17,6 +17,13 @@ router.get("/", async (req, res) => {
     const temp = weather.main.temp;
     const humidity = weather.main.humidity;
     const condition = weather.weather[0].main;
+    const windSpeed = weather.wind?.speed || 0;
+    const pressure = weather.main?.pressure || 0;
+    const visibility = weather.visibility || 0;
+    const sunrise = weather.sys?.sunrise || 0;
+    const sunset = weather.sys?.sunset || 0;
+    const tempMin = weather.main?.temp_min || temp;
+    const tempMax = weather.main?.temp_max || temp;
 
     let advisory = "";
 
@@ -36,7 +43,14 @@ router.get("/", async (req, res) => {
       weather: {
         temp,
         humidity,
-        condition
+        condition,
+        windSpeed,
+        pressure,
+        visibility,
+        sunrise,
+        sunset,
+        tempMin,
+        tempMax
       },
       advisory
     });

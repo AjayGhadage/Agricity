@@ -25,7 +25,7 @@ const groq = new Groq({
 // 🔥 Reusable Groq function
 async function generateText(prompt) {
   const response = await groq.chat.completions.create({
-   model: "llama3-8b-8192",
+   model: "llama-3.1-8b-instant",
     messages: [
       { role: "user", content: prompt }
     ],
@@ -43,6 +43,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.static("."));
+app.use("/audio", express.static("./public/audio"));
 
 // ============================
 // 🗄️ DATABASE
@@ -57,91 +58,80 @@ mongoose.connect(process.env.MONGO_URI)
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/auth", require("./routes/googleAuth"));
 app.use("/api/prices", require("./routes/priceRoutes"));
+app.use("/api/scan-history", require("./routes/scanHistoryRoutes"));
+app.use("/api/calendar", require("./routes/calendarRoutes"));
 app.use("/api/compare", require("./routes/comparisonRoutes"));
 app.use("/api/advisory", require("./routes/wheatheroute"));
 app.use("/api/disease", require("./routes/diseaseRoutes"));
 app.use("/api/voice", require("./routes/voiceRoutes"));
 app.use("/api/crop", require("./routes/cropRoutes"));
+app.use("/api/farm", require("./routes/farmRoutes"));
+app.use("/api/subsidies", require("./routes/subsidyRoutes"));
+app.use("/api/calculator", require("./routes/calculatorRoutes"));
+app.use("/api/logistics", require("./routes/logisticsRoutes"));
 // ============================
-// 🤖 CHAT API
+// ============================
+// 🤖 CHAT API (LLAMA 3 AGRONOMIST)
 // ============================
 app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
+    if (!message) return res.status(400).json({ error: "No message provided." });
 
     // 🌍 1. Detect language
     const language = await detectLanguage(message);
 
     // 🔄 2. Translate to English
-    const englishMsg =
-      language !== "English"
-        ? await toEnglish(message)
-        : message;
+    const englishMsg = language !== "English" ? await toEnglish(message) : message;
 
-    // 🧠 3. Extract data
-    const { crop, location, intents } =
-      await extractQuery(englishMsg);
-
-    if (!crop || !location) {
-      return res.json({
-        reply: "Please specify crop and location clearly."
-      });
-    }
-
+    // 🧠 3. Extract data (Skip blocking if missing)
+    let cropData = null;
     let priceData = null;
     let advisoryData = null;
+    let locationContext = "Unknown";
+    let cropContext = "Unknown";
 
-    // 🔗 4. Call APIs
-    if (intents.includes("price")) {
-      try {
-        const priceRes = await axios.get(
-          `http://localhost:5001/api/prices?crop=${crop}&location=${location}`
-        );
-        priceData = priceRes.data;
-      } catch (err) {
-        console.log("Price API failed");
+    try {
+      const { crop, location, intents } = await extractQuery(englishMsg);
+      locationContext = location || "Unknown";
+      cropContext = crop || "Unknown";
+
+      // 🔗 4. Call APIs for Live Context (Only if intents match)
+      if (crop && location) {
+        if (intents.includes("price")) {
+          const priceRes = await axios.get(`http://localhost:5001/api/prices?crop=${crop}&location=${location}`);
+          priceData = priceRes.data;
+        }
+        if (intents.includes("advisory")) {
+          const advRes = await axios.get(`http://localhost:5001/api/advisory?crop=${crop}&location=${location}`);
+          advisoryData = advRes.data;
+        }
       }
+      if (intents.includes("crop")) {
+        const crRes = await axios.post("http://localhost:5001/api/crop", req.body);
+        cropData = crRes.data;
+      }
+    } catch (e) {
+      console.log("Silent Info: Intent Extraction missed or API failed. Falling back to autonomous LLaMA brain.");
     }
 
-    if (intents.includes("advisory")) {
-      try {
-        const advRes = await axios.get(
-          `http://localhost:5001/api/advisory?crop=${crop}&location=${location}`
-        );
-        advisoryData = advRes.data;
-      } catch (err) {
-        console.log("Advisory API failed");
-      }
-    }
-
-    let cropData = null;
-    if (intents.includes("crop")) {
-      try {
-        const cropRes = await axios.post(
-          "http://localhost:5001/api/crop",
-          req.body
-        );
-        cropData = cropRes.data;
-      } catch (err) {
-        console.log("Crop API failed");
-      }
-    }
-
-    // 🧠 5. Generate AI response
+    // 🧠 5. Generate AI response (Unconstrained Conversational Engine)
     const prompt = `
-User query: "${englishMsg}"
+You are a world-class Indian Agronomist and the primary AI Assistant for the 'AgriTech Super App'.
+A farmer is asking you this question: "${englishMsg}"
 
-Data:
-Price: ${priceData ? JSON.stringify(priceData) : "N/A"}
-Advisory: ${advisoryData ? JSON.stringify(advisoryData) : "N/A"}
-Crop Recommendation: ${cropData ? JSON.stringify(cropData) : "N/A"}
+If live market data is available below, use it. If not, use your master knowledge base to solve their problem immediately.
+Do NOT ask them to specify crop or location unless it is physically impossible to answer without it.
+Keep your response under 5 concise, actionable sentences for mobile readability. Use plain text formatting.
 
-Give clear, simple, farmer-friendly advice.
+[LIVE SENSOR DATA (Optional)]:
+Live Price Data: ${priceData ? JSON.stringify(priceData) : "Not requested"}
+Live Weather Advisory: ${advisoryData ? JSON.stringify(advisoryData) : "Not requested"}
 `;
 
     let reply = await generateText(prompt);
 
-    // 🔄 6. Translate back
+    // 🔄 6. Translate back to farmer's native language
     if (language !== "English") {
       reply = await fromEnglish(reply, language);
     }
@@ -150,10 +140,7 @@ Give clear, simple, farmer-friendly advice.
 
   } catch (err) {
     console.error("CHAT ERROR:", err.message);
-
-    res.status(500).json({
-      reply: "Something went wrong"
-    });
+    res.status(500).json({ reply: "I am experiencing high network traffic. Please try asking again." });
   }
 });
 

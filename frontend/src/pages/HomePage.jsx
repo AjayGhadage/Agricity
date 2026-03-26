@@ -57,7 +57,7 @@ const HomePage = () => {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6">
-            Welcome back, {user ? user.name.split(' ')[0] : 'Farmer'}! 👋
+            Welcome back, {user?.name?.split(' ')[0] || 'Farmer'}! 👋
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-xl text-agri-light opacity-90">
             Your crops are looking healthy today. Let's optimize your farming with cutting-edge AI.
@@ -123,6 +123,92 @@ const HomePage = () => {
            </div>
         </div>
       </section>
+
+      {/* Trending Agri News */}
+      <section className="py-20 bg-white relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-end mb-12 gap-4">
+            <div>
+              <p className="text-agri-main font-black uppercase tracking-widest text-sm mb-2">Live Updates</p>
+              <h2 className="text-3xl sm:text-4xl font-black text-[#1A2E24] tracking-tight">Trending Agri-News 📰</h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-[#F9FBFA] rounded-3xl p-6 border border-[#E9F0EC] hover:shadow-lg transition-all duration-300">
+              <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 font-bold text-xs rounded-lg mb-4">Export Policy</span>
+              <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight">Onion Export Ban Lifted: Prices Expected to Surge by 30%</h3>
+              <p className="text-gray-600 text-sm mb-4 leading-relaxed">The central government has officially reversed the export ban on onions, opening up markets in the Middle East routing out of Nashik APMC.</p>
+              <p className="text-xs font-bold text-gray-400 uppercase">2 Hours Ago</p>
+            </div>
+            <div className="bg-[#F9FBFA] rounded-3xl p-6 border border-[#E9F0EC] hover:shadow-lg transition-all duration-300">
+              <span className="inline-block px-3 py-1 bg-orange-100 text-orange-700 font-bold text-xs rounded-lg mb-4">Weather Alert</span>
+              <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight">Monsoon 2026: IMD Predicts Early Onset in Maharashtra</h3>
+              <p className="text-gray-600 text-sm mb-4 leading-relaxed">Farmers are advised to prepare soil early as the southwestern monsoon is predicted to hit the Konkan coast 5 days ahead of schedule.</p>
+              <p className="text-xs font-bold text-gray-400 uppercase">5 Hours Ago</p>
+            </div>
+            <div className="bg-[#F9FBFA] rounded-3xl p-6 border border-[#E9F0EC] hover:shadow-lg transition-all duration-300">
+              <span className="inline-block px-3 py-1 bg-green-100 text-green-700 font-bold text-xs rounded-lg mb-4">Govt Subsidy</span>
+              <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight">PM-Kisan 16th Installment Releasing Next Week</h3>
+              <p className="text-gray-600 text-sm mb-4 leading-relaxed">Eligible farmers checking the subsidy portal are confirmed to receive ₹2,000 deposited directly into linked Aadhar bank accounts.</p>
+              <p className="text-xs font-bold text-gray-400 uppercase">1 Day Ago</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Farmer Success Stories */}
+      <section className="py-20 bg-[#1A2E24] relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-green-500 via-[#1A2E24] to-[#1A2E24]"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <p className="text-[#8FB89A] font-black uppercase tracking-[0.2em] text-sm mb-3">Kisaan Prerana</p>
+            <h2 className="text-4xl text-white font-black tracking-tight">Community Success Stories 🤝</h2>
+            <p className="text-green-100/80 mt-4 max-w-2xl mx-auto">Connect with top-performing local farmers who used AgriTech to revolutionize their yields. Peer-to-peer learning builds stronger communities.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 hover:bg-white/15 transition-all">
+              <div className="w-16 h-16 bg-agri-main rounded-2xl flex items-center justify-center text-white text-2xl font-black mb-6">RP</div>
+              <h3 className="text-2xl font-black text-white mb-2">Ramesh Patil</h3>
+              <p className="text-green-300 font-bold text-sm mb-4">Nashik, Maharashtra</p>
+              <p className="text-green-100/90 text-sm leading-relaxed mb-6">"Using the Deep AI Pathology engine, I saved my 5-acre tomato plot from early blight by applying the recommended Organic Copper fungicide exactly on time. Saved ₹40,000 in potential losses."</p>
+              <div className="bg-white/10 rounded-xl p-4 flex items-center justify-between border border-white/10">
+                <div>
+                  <p className="text-[#8FB89A] text-[10px] font-bold uppercase tracking-widest mb-1">Mentor Contact</p>
+                  <p className="text-white font-bold tracking-wider">+91 98765 43210</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 hover:bg-white/15 transition-all">
+              <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center text-white text-2xl font-black mb-6">SK</div>
+              <h3 className="text-2xl font-black text-white mb-2">Suresh Kumar</h3>
+              <p className="text-orange-300 font-bold text-sm mb-4">Pune, Maharashtra</p>
+              <p className="text-green-100/90 text-sm leading-relaxed mb-6">"I checked the Smart Route Logistics AI before selling my 100 quintals of Onion. Instead of the local yard, it calculated a ₹45,000 net extra profit if I rented a truck to Vashi APMC. The AI math was flawless."</p>
+              <div className="bg-white/10 rounded-xl p-4 flex items-center justify-between border border-white/10">
+                <div>
+                  <p className="text-[#8FB89A] text-[10px] font-bold uppercase tracking-widest mb-1">Mentor Contact</p>
+                  <p className="text-white font-bold tracking-wider">+91 91234 56789</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 hover:bg-white/15 transition-all">
+              <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center text-white text-2xl font-black mb-6">AD</div>
+              <h3 className="text-2xl font-black text-white mb-2">Anita Devi</h3>
+              <p className="text-blue-300 font-bold text-sm mb-4">Jalgaon, Maharashtra</p>
+              <p className="text-green-100/90 text-sm leading-relaxed mb-6">"I didn't know I was eligible for the MahaDBT Drip Irrigation scheme. The Govt Subsidy Finder matched my land size and caste instantly. I secured an 80% subsidy safely and modernized my farm."</p>
+              <div className="bg-white/10 rounded-xl p-4 flex items-center justify-between border border-white/10">
+                <div>
+                  <p className="text-[#8FB89A] text-[10px] font-bold uppercase tracking-widest mb-1">Mentor Contact</p>
+                  <p className="text-white font-bold tracking-wider">+91 99887 76655</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 };

@@ -39,3 +39,33 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #113a1d; 
 }
+
+/* Google Translate Overrides */
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+}
+.goog-logo-link {
+  display: none !important;
+}
+.goog-te-gadget {
+  color: transparent !important;
+  font-size: 0px;
+}
+.goog-te-combo {
+  background-color: #F9FBFA;
+  border: 1px solid #E9F0EC;
+  color: #1A2E24;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px !important;
+  font-weight: 800;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+}
+.goog-te-combo:hover {
+  border-color: #1D5D30;
+}
